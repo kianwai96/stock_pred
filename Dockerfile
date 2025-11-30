@@ -1,3 +1,4 @@
+# Use Python 3.10 (TensorFlow CPU compatible)
 FROM python:3.10-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -5,7 +6,7 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# Install system packages required for psycopg2 and general TF dependencies
+# Install system packages required for TensorFlow, psycopg2, OpenCV, etc.
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
@@ -16,7 +17,7 @@ RUN apt-get update && apt-get install -y \
     libxrender1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python packages
+# Copy requirements and install Python dependencies
 COPY requirements.txt .
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
@@ -24,9 +25,9 @@ RUN pip install --upgrade pip && \
 # Copy project files
 COPY . .
 
-# Expose port
+# Expose port for Render
 EXPOSE 10000
 
-# Start Gunicorn
+# Start Gunicorn pointing to Flask subfolder
 CMD ["gunicorn", "Flask.app:app", "--bind", "0.0.0.0:10000"]
 
