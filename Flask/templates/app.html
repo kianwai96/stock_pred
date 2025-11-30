@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel ="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>News Sentiment</title>
+    <script src ='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js'></script>
+</head>
+<body>
+    <div>
+        <h2 id = dashboard><a href='#'>NVIDIA Stock Sentiment Dashboard</a></h2>
+    </div>
+    <div>
+        <h3 class= pred_text id= prediction>The next predicted closing price for NVIDIA is: {{prediction_value}} </h3>
+        <h3 class= pred_text>The current closing price:  {{original_value}}</h3>
+    </div>
+
+    
+    <div class="chart">
+    <canvas id="lineChart" width = "800" height="600"></canvas>
+        <script>
+            var labels = JSON.parse('{{ labels_price | tojson | safe }}');  // Ensure valid JavaScript array
+            var values = JSON.parse('{{ values_price | tojson | safe }}');
+
+            var ctx = document.getElementById("lineChart").getContext("2d");
+            var lineChart = new Chart(ctx, {
+                type: "line",
+                data:{
+                    labels: labels,
+                    datasets:[
+                        {
+                            label: "NVIDIA Stock Price Past 14 days",
+                            data:values,
+                            fill:false,
+                            lineTension: 0.2,
+                            borderColor: 'rgb(75,192,192)'
+                        }
+                    ]
+                },
+                options:{
+                    responsive: false
+                }
+            }
+            );
+        </script>
+    
+    <canvas id = "barChart"  width = "800" height="600"></canvas>
+        <script>
+            var x_values = ["Positive","Negative","Neutral"];
+            var y_values = JSON.parse('{{ values_sentiment| tojson | safe }}');
+            var barColors = ['green', 'red', 'blue'];
+
+            var ctx = document.getElementById("barChart").getContext("2d");
+            var barChart = new Chart(ctx, {
+                type: "bar",
+                data:{
+                    labels: x_values,
+                    datasets:[
+                        {
+                            label: "NVIDIA Stock Sentiment Past 14 days",
+                            data: y_values,
+                            backgroundColor: barColors
+                        }
+                    ]
+                }, options:{
+                    responsive: false
+                }
+            }
+                
+            )
+        </script>
+    </div>
+</body>
+</html>

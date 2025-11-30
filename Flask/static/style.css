@@ -1,0 +1,25 @@
+#dashboard{
+    background-color: DodgerBlue;
+    border: 2px solid;
+    border-radius: 10px;
+    top: 0px;
+    margin: 0px;
+    padding: 10px;
+    height: auto;
+    
+}
+
+a{
+    text-decoration: none;
+}
+
+.chart{
+    display: flex;
+    justify-content: center;
+    gap: 200px;
+}
+
+.pred_text{
+    margin-top: 25px;
+    margin-left: 10px;
+}
