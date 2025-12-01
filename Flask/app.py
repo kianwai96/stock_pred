@@ -14,7 +14,7 @@ app = Flask(__name__)
 
 def load_model():
     from keras.models import load_model
-    model = load_model("model.keras")
+    model = load_model("model.h5")
     return model
 
 #model=pickle.load(open('finalized_model.sav','rb'))
