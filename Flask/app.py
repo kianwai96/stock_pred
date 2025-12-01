@@ -8,9 +8,14 @@ from sklearn.preprocessing import StandardScaler
 
 app = Flask(__name__)
 
+# def load_model():
+#     with open("finalized_model.sav", "rb") as f:
+#         return pickle.load(f)  # Model loads only per request
+
 def load_model():
-    with open("finalized_model.sav", "rb") as f:
-        return pickle.load(f)  # Model loads only per request
+    from keras.models import load_model
+    model = load_model("model.keras")
+    return model
 
 #model=pickle.load(open('finalized_model.sav','rb'))
 
