@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 # import mysql.connector as connector
 import psycopg2
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 
 app = Flask(__name__)
 
@@ -14,12 +14,12 @@ app = Flask(__name__)
 
 def load_model():
     from keras.models import load_model
-    model = load_model("model.keras")
+    model = load_model("model1.keras")
     return model
 
 #model=pickle.load(open('finalized_model.sav','rb'))
 
-db = 'postgresql://stock_price_78jd_user:RJtAfdorSK6ZmDiE43EocRK9JOxGn57M@dpg-d4lrugjuibrs7387h89g-a.singapore-postgres.render.com/stock_price_78jd'
+db = 'postgresql://stock_price_g9q6_user:NxjC5lOyzg5HJftmjj49JUpYxLquARBl@dpg-d59ul99r0fns7381saug-a.singapore-postgres.render.com/stock_price_g9q6'
 
 @app.route('/')
 def home():
@@ -30,14 +30,15 @@ def home():
     result = my_cursor.fetchall()
     data = pd.DataFrame(result, columns = ['Date', 'Open', 'High', 'Low', 'Close', 'Volume', 'Dividends', 'Stock_Splits', 'Score', 'Positive' , 'Negative', 'Neutral', 'Total_Sentiment'])
     data.set_index('Date', drop=True,inplace=True)
-    data.drop(['Open', 'High', 'Low', 'Dividends', 'Stock_Splits', 'Score'], inplace=True, axis=1)
-    scaler = StandardScaler()
-    data_scaled = scaler.fit_transform(data)
-    input_data = data_scaled[-14: ,].reshape(1,14,6)
+    data.sort_index(inplace=True)
+    data_model = data.drop(['Open', 'High', 'Low', 'Dividends', 'Stock_Splits', 'Score', 'Positive' , 'Negative', 'Neutral'], axis=1)
+    scaler = MinMaxScaler(feature_range=(0,1))
+    data_scaled = scaler.fit_transform(data_model.iloc[-14:,])
+    input_data = data_scaled[-14: ,].reshape(1,14,3)
     model = load_model()
     prediction = model.predict(input_data)
 
-    arr = [prediction.flatten()[0],  prediction.flatten()[0], prediction.flatten()[0], prediction.flatten()[0], prediction.flatten()[0], prediction.flatten()[0]]
+    arr = [prediction.flatten()[0],  prediction.flatten()[0], prediction.flatten()[0]]
 
     arr = np.array(arr).reshape(1,-1)
 
