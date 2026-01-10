@@ -34,6 +34,7 @@ def home():
     scaler = StandardScaler()
     data_scaled = scaler.fit_transform(data)
     input_data = data_scaled[-14: ,].reshape(1,14,6)
+    #input_data = scaler.fit_transform(data[14: ,]).reshape(1,14,6) 
     model = load_model()
     prediction = model.predict(input_data)
 
