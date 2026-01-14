@@ -17,6 +17,15 @@ def load_model():
     model = load_model("model1.keras")
     return model
 
+def strategy(predicted, original):
+    if original < predicted:
+        return 'BUY'
+    else:
+        return 'SELL'
+
+with open("minmax_scaler.pkl", "rb") as f:
+    scaler = pickle.load(f)
+
 #model=pickle.load(open('finalized_model.sav','rb'))
 
 db = 'postgresql://stock_price_g9q6_user:NxjC5lOyzg5HJftmjj49JUpYxLquARBl@dpg-d59ul99r0fns7381saug-a.singapore-postgres.render.com/stock_price_g9q6'
@@ -32,7 +41,7 @@ def home():
     data.set_index('Date', drop=True,inplace=True)
     data.sort_index(inplace=True)
     data_model = data.drop(['Open', 'High', 'Low', 'Dividends', 'Stock_Splits', 'Score', 'Positive' , 'Negative', 'Neutral'], axis=1)
-    scaler = MinMaxScaler(feature_range=(0,1))
+    #scaler = MinMaxScaler(feature_range=(0,1))
     data_scaled = scaler.fit_transform(data_model.iloc[-14:,])
     input_data = data_scaled[-14: ,].reshape(1,14,3)
     model = load_model()
@@ -54,8 +63,27 @@ def home():
     values_neg = int(data['Negative'][-14:].sum())
     values_neu = int(data['Neutral'][-14:].sum())
 
-    return render_template("app.html", prediction_value = round(y_pred_future,2), original_value = ori, labels_price = labels , values_price = values,
-     values_sentiment = [values_pos,values_neg,values_neu])
+    n_past = 14
+
+    traindata = []
+
+    for i in range(len(data_model)-n_past*2+1 , len(data_model)-n_past+1):
+        traindata.append(scaler.transform(data_model.iloc[i:i+n_past,:]))
+
+    prediction1 = model.predict(np.array(traindata).reshape(14,14,3))
+    prediction1 = prediction1.flatten()
+
+    arr= []
+    for i in range(0, len(prediction1)):
+        arr.append([prediction1[i], prediction1[i], prediction1[i]])
+
+    predicted_price = scaler.inverse_transform(np.array(arr).reshape( 14,3))
+    predicted_price = predicted_price[:,0].tolist()
+
+    strat = strategy(y_pred_future, ori)
+
+    return render_template("app.html", prediction_value = round(y_pred_future,2), original_value = ori, labels_price = labels , values_price = values, 
+                           predicted_price = predicted_price, strat = strat, values_sentiment = [values_pos,values_neg,values_neu])
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

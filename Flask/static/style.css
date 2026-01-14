@@ -1,12 +1,26 @@
-#dashboard{
-    background-color: DodgerBlue;
-    border: 2px solid;
-    border-radius: 10px;
-    top: 0px;
-    margin: 0px;
+.Navbar{
+    background-color: crimson;
+    font-family: Calibri;
+    padding-left: 15px;
+    padding-right: 15px;
+    margin-bottom: 20px;
+}
+
+.navdiv{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+li{
+    display: inline-block;
+    list-style: none;
+}
+
+li a{
+    color: white;
     padding: 10px;
-    height: auto;
-    
+    font-size: 20px;
 }
 
 a{
